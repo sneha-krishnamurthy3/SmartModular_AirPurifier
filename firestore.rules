@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email.matches('.*admin.*') ||
+        request.auth.token.role == 'admin' ||
+        request.auth.token.role == 'super_admin'
+      );
+    }
+
+    // Public read for Products, CMS, FAQs, Reviews, and Coupons
+    match /products/{productId} {
+      allow read: if true;
+      allow write, create, update, delete: if isAdmin();
+    }
+
+    match /cms/{document=**} {
+      allow read: if true;
+      allow write, create, update, delete: if isAdmin();
+    }
+
+    match /faqs/{faqId} {
+      allow read: if true;
+      allow write, create, update, delete: if isAdmin();
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write, create, update, delete: if isAdmin();
+    }
+
+    // Orders & Transactions
+    match /orders/{orderId} {
+      allow read: if true; // Customers view their order via unique ID / token
+      allow create: if true; // Create order during checkout
+      allow update, delete: if isAdmin();
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isAdmin();
+      allow create: if true; // Transaction logging
+      allow update, delete: if isAdmin();
+    }
+
+    // Customer User Profiles
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      allow read, write: if isAdmin();
+    }
+  }
+}
