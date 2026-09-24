@@ -13,7 +13,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "simulate:traffic": "node scripts/simulate-funnel-traffic.cjs"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.3.3",
