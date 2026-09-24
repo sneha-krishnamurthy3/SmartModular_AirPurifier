@@ -5,6 +5,7 @@ import { initiateRazorpayPayment } from '../../services/razorpay';
 import { useOrderStore } from '../../store/useOrderStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { sendOrderConfirmationEmail, sendAdminOrderNotification } from '../../services/email';
+import { trackAddToCart, trackPurchase } from '../../services/analytics';
 import { purifierImg } from '../../assets/productAssets';
 import { Check, ShieldCheck, Truck, RotateCcw, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -24,6 +25,7 @@ export const ProductShowcase: React.FC = () => {
 
   const handleAddToCart = () => {
     addToCart(mainProduct, quantity);
+    trackAddToCart(mainProduct, quantity);
     toast.success(`Added ${quantity} x ${mainProduct.name} to cart!`);
   };
 
@@ -84,6 +86,8 @@ export const ProductShowcase: React.FC = () => {
           productsSummary,
           totalAmount: totalAmount,
         });
+
+        trackPurchase(order);
 
         toast.success(`Payment verified! Order #${order.id} created.`);
         setIsProcessing(false);

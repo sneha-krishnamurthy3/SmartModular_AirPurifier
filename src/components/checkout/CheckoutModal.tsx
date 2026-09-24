@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useOrderStore } from '../../store/useOrderStore';
 import { initiateRazorpayPayment } from '../../services/razorpay';
 import { sendOrderConfirmationEmail, sendAdminOrderNotification } from '../../services/email';
+import { trackBeginCheckout, trackPurchase } from '../../services/analytics';
 import { X, ShieldCheck, CreditCard, CheckCircle2, ArrowRight, QrCode, Mail, Key, Copy, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -35,6 +36,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
   const [paymentMethod, setPaymentMethod] = useState<'Razorpay' | 'UPI' | 'Card'>('Razorpay');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedUpi, setCopiedUpi] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && cart.length > 0) {
+      trackBeginCheckout(cart, getTotal());
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -168,6 +175,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
       productsSummary,
       totalAmount: total,
     });
+
+    trackPurchase(newOrder);
 
     clearCart();
     setIsSubmitting(false);

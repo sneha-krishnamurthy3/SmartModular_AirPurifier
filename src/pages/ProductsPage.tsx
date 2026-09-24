@@ -4,6 +4,7 @@ import { useCartStore } from '../store/useCartStore';
 import { useWishlistStore } from '../store/useWishlistStore';
 import { Search, Heart, ShoppingBag, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { trackAddToCart } from '../services/analytics';
 import toast from 'react-hot-toast';
 
 export const ProductsPage: React.FC = () => {
@@ -164,6 +165,7 @@ export const ProductsPage: React.FC = () => {
                     <button
                       onClick={() => {
                         addToCart(product, 1);
+                        trackAddToCart(product, 1);
                         toast.success(`Added ${product.name} to cart!`);
                       }}
                       className="bg-[#D7FF2F] text-[#09090B] hover:bg-[#C2EB1B] font-black text-xs px-4 py-2.5 rounded-xl uppercase tracking-wider flex items-center gap-1.5 transition-colors"

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProductStore } from '../store/useProductStore';
 import { useCartStore } from '../store/useCartStore';
 import { useWishlistStore } from '../store/useWishlistStore';
+import { trackViewItem, trackAddToCart } from '../services/analytics';
 import { ShieldCheck, Truck, RotateCcw, Heart, ShoppingBag, Check, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -18,8 +19,15 @@ export const ProductDetail: React.FC = () => {
 
   const inWishlist = isInWishlist(product.id);
 
+  useEffect(() => {
+    if (product) {
+      trackViewItem(product);
+    }
+  }, [product?.id]);
+
   const handleAddToCart = () => {
     addToCart(product, quantity);
+    trackAddToCart(product, quantity);
     toast.success(`Added ${quantity} x ${product.name} to cart!`);
   };
 
