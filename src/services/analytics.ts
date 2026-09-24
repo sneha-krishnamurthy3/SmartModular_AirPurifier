@@ -19,9 +19,22 @@ export const gtag = (...args: any[]) => {
   }
 };
 
+// Dispatch event with debug_mode for instant Realtime/DebugView visibility
+export const sendEvent = (eventName: string, params: Record<string, any> = {}) => {
+  const payload = { ...params, debug_mode: true };
+  gtag('event', eventName, payload);
+  if (typeof window !== 'undefined') {
+    console.log(
+      `%c[GA4 Analytics] 🎯 ${eventName}`,
+      'color: #D7FF2F; background: #09090B; font-weight: bold; padding: 3px 8px; border-radius: 4px; border: 1px solid #27272A;',
+      payload
+    );
+  }
+};
+
 // 1. Page View tracking (crucial for SPAs)
 export const trackPageView = (path: string, title?: string) => {
-  gtag('event', 'page_view', {
+  sendEvent('page_view', {
     page_path: path,
     page_location: typeof window !== 'undefined' ? window.location.href : '',
     page_title: title || (typeof document !== 'undefined' ? document.title : ''),
@@ -30,7 +43,7 @@ export const trackPageView = (path: string, title?: string) => {
 
 // 2. View Product Detail (Funnel Step: view_item)
 export const trackViewItem = (product: Product) => {
-  gtag('event', 'view_item', {
+  sendEvent('view_item', {
     currency: 'INR',
     value: product.price,
     items: [
@@ -47,7 +60,7 @@ export const trackViewItem = (product: Product) => {
 
 // 3. Add To Cart (Funnel Step: add_to_cart)
 export const trackAddToCart = (product: Product, quantity: number = 1) => {
-  gtag('event', 'add_to_cart', {
+  sendEvent('add_to_cart', {
     currency: 'INR',
     value: product.price * quantity,
     items: [
@@ -64,7 +77,7 @@ export const trackAddToCart = (product: Product, quantity: number = 1) => {
 
 // 4. Begin Checkout (Funnel Step: begin_checkout)
 export const trackBeginCheckout = (items: CartItem[], total: number) => {
-  gtag('event', 'begin_checkout', {
+  sendEvent('begin_checkout', {
     currency: 'INR',
     value: total,
     items: items.map((item) => ({
@@ -79,7 +92,7 @@ export const trackBeginCheckout = (items: CartItem[], total: number) => {
 
 // 5. Purchase Confirmation (Funnel Step: purchase)
 export const trackPurchase = (order: Order) => {
-  gtag('event', 'purchase', {
+  sendEvent('purchase', {
     transaction_id: order.id,
     value: order.total,
     currency: 'INR',
